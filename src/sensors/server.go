@@ -5,7 +5,8 @@ import (
 	"fmt"
 
 	"github.com/lucaspiller/meteorpi/src/datastore"
-	bmp180 "github.com/lucaspiller/meteorpi/src/sensors/bmp180"
+	"github.com/lucaspiller/meteorpi/src/sensors/basestation"
+	"github.com/lucaspiller/meteorpi/src/sensors/bmp180"
 	"github.com/lucaspiller/meteorpi/src/sensors/random"
 	t "github.com/lucaspiller/meteorpi/src/sensors/types"
 )
@@ -23,6 +24,7 @@ func run() {
 	data := make(chan *t.Measurement)
 	random.Start(data)
 	bmp180.Start(data)
+	basestation.Start(data)
 	for {
 		select {
 		case measurement := <-data:
