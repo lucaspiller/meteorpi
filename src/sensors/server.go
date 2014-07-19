@@ -1,8 +1,8 @@
 package main
 
 import "fmt"
-import "github.com/lucaspiller/meteorpi/sensors/random"
-import t "github.com/lucaspiller/meteorpi/sensors/types"
+import "github.com/lucaspiller/meteorpi/src/sensors/random"
+import t "github.com/lucaspiller/meteorpi/src/sensors/types"
 
 func main() {
 	run()

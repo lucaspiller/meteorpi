@@ -1,7 +1,7 @@
 package random
 
 import "time"
-import t "github.com/lucaspiller/meteorpi/sensors/types"
+import t "github.com/lucaspiller/meteorpi/src/sensors/types"
 
 var MeasurementInterval = 5 * time.Second
 
