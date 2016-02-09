@@ -1,15 +1,19 @@
 #!/bin/bash
 
-tail -42000 data/data.csv > data/recent.csv
+OUTDIR="/tmp/media-new"
+mkdir $OUTDIR
 
-date -v-1d 2>&1 > /dev/null
+nice -n 19 tail -42000 data/data.csv > /tmp/week.csv
+nice -n 19 tail -3500 /tmp/week.csv > /tmp/day.csv
+
+date -1d > /dev/null 2>&1
 if [ "$?" == "0" ]; then
   YESTERDAY="date -v-1d"
 else
   YESTERDAY="date -d 'yesterday'"
 fi
 
-gnuplot <<EOF
+nice -n 19 gnuplot <<EOF
 set datafile separator ","
 set term svg size 700,350
 
@@ -22,16 +26,16 @@ set grid xtics lc rgb "#bbbbbb" lw 1 lt 0
 
 set xrange [ system("$YESTERDAY '+%s'") : system("date '+%s'") ]
 
-set output 'media/pressure.svg'
+set output '$OUTDIR/pressure.svg'
 set ylabel "Pressure (hPa)"
 set yrange  [ 950 : 1050 ]
-plot '<grep BMP180 data/recent.csv' using 1:4 with lines title 'Pressure' smooth csplines
+plot '<grep BMP180 /tmp/day.csv' using 1:4 with lines title 'Pressure' smooth csplines
 unset yrange
 
-set output 'media/remote1-vcc.svg'
+set output '$OUTDIR/remote1-vcc.svg'
 set ylabel "Battery (V)"
 set yrange  [ 2.5 : 4.5 ]
-plot '<grep Remote1 data/recent.csv' using 1:5 with lines title 'Battery' smooth csplines
+plot '<grep Remote1 /tmp/day.csv' using 1:5 with lines title 'Battery' smooth csplines
 unset yrange
 
 set ytics nomirror
@@ -41,17 +45,17 @@ set y2label "Humidity (RH)"
 set yrange  [ -10 : 40 ]
 set y2range [ 0 : 100 ]
 
-set output 'media/internal.svg'
-plot '<grep DHT22 data/recent.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep DHT22 data/recent.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2
+set output '$OUTDIR/internal.svg'
+plot '<grep DHT22 /tmp/day.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep DHT22 /tmp/day.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2
 
-set output 'media/remote1-temp.svg'
+set output '$OUTDIR/remote1-temp.svg'
 d(t, h)=(t - ((100 - h) / 5))
-plot '<grep Remote1 data/recent.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep Remote1 data/recent.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2, '<grep Remote1 data/recent.csv' using 1:(d(column(3), column(4))) with lines title 'Dewpoint' smooth csplines axes x1y1
+plot '<grep Remote1 /tmp/day.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep Remote1 /tmp/day.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2, '<grep Remote1 /tmp/day.csv' using 1:(d(column(3), column(4))) with lines title 'Dewpoint' smooth csplines axes x1y1
 EOF
 
 NOW=`date`
 
-cat > media/index.html <<EOF
+cat > $OUTDIR/index.html <<EOF
 <!DOCTYPE html>
 <html>
   <head>
@@ -90,14 +94,14 @@ cat > media/index.html <<EOF
 </html>
 EOF
 
-date -v-1d 2>&1 > /dev/null
+date -v-1d > /dev/null 2>&1
 if [ "$?" == "0" ]; then
   YESTERDAY="date -v-7d"
 else
   YESTERDAY="date -d '1 week ago'"
 fi
 
-gnuplot <<EOF
+nice -n 19 gnuplot <<EOF
 set datafile separator ","
 set term svg size 700,350
 
@@ -110,16 +114,16 @@ set grid xtics lc rgb "#bbbbbb" lw 1 lt 0
 
 set xrange [ system("$YESTERDAY '+%s'") : system("date '+%s'") ]
 
-set output 'media/week-pressure.svg'
+set output '$OUTDIR/week-pressure.svg'
 set ylabel "Pressure (hPa)"
 set yrange  [ 950 : 1050 ]
-plot '<grep BMP180 data/recent.csv' using 1:4 with lines title 'Pressure' smooth csplines
+plot '<grep BMP180 /tmp/week.csv' using 1:4 with lines title 'Pressure' smooth csplines
 unset yrange
 
-set output 'media/week-remote1-vcc.svg'
+set output '$OUTDIR/week-remote1-vcc.svg'
 set ylabel "Battery (V)"
 set yrange  [ 2.5 : 4.5 ]
-plot '<grep Remote1 data/recent.csv' using 1:5 with lines title 'Battery' smooth csplines
+plot '<grep Remote1 /tmp/week.csv' using 1:5 with lines title 'Battery' smooth csplines
 unset yrange
 
 set ytics nomirror
@@ -129,17 +133,17 @@ set y2label "Humidity (RH)"
 set yrange  [ -10 : 40 ]
 set y2range [ 0 : 100 ]
 
-set output 'media/week-internal.svg'
-plot '<grep DHT22 data/recent.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep DHT22 data/recent.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2
+set output '$OUTDIR/week-internal.svg'
+plot '<grep DHT22 /tmp/week.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep DHT22 /tmp/week.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2
 
-set output 'media/week-remote1-temp.svg'
+set output '$OUTDIR/week-remote1-temp.svg'
 d(t, h)=(t - ((100 - h) / 5))
-plot '<grep Remote1 data/recent.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep Remote1 data/recent.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2, '<grep Remote1 data/recent.csv' using 1:(d(column(3), column(4))) with lines title 'Dewpoint' smooth csplines axes x1y1
+plot '<grep Remote1 /tmp/week.csv' using 1:3 with lines title 'Temperature' smooth csplines, '<grep Remote1 /tmp/week.csv' using 1:4 with lines title 'Humidity' smooth csplines axes x1y2, '<grep Remote1 /tmp/week.csv' using 1:(d(column(3), column(4))) with lines title 'Dewpoint' smooth csplines axes x1y1
 EOF
 
 NOW=`date`
 
-cat > media/week.html <<EOF
+cat > $OUTDIR/week.html <<EOF
 <!DOCTYPE html>
 <html>
   <head>
@@ -177,3 +181,7 @@ cat > media/week.html <<EOF
   </body>
 </html>
 EOF
+
+mkdir /tmp/media
+cp /tmp/media-new/* /tmp/media
+rm -Rf /tmp/media-new
