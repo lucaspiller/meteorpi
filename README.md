@@ -1,5 +1,8 @@
 # meteorpi
 
+**This is `pi` branch, which contains minor tweaks for the version I am running
+on a Raspberry Pi A+**
+
 Raspberry Pi weather station.
 
 Listens and periodically reads data, saves it to a CSV, makes it pretty with Gnuplot.
