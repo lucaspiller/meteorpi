@@ -9,7 +9,7 @@ import (
 	t "github.com/lucaspiller/meteorpi/src/sensors/types"
 )
 
-var MeasurementInterval = 30 * time.Second
+var MeasurementInterval = 300 * time.Second
 
 // start the sensor as a new Gorouting, and return a Channel for it to spit out
 // measurements
